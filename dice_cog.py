@@ -3,10 +3,11 @@ import re
 import d20
 import discord
 from discord.ext import commands
-from utils import *
+from utils import BladesStringifier, VerboseMDStringifier, PersistentRollContext, send, try_delete
 
 
 ADV_WORD_RE = re.compile(r"(?:^|\s+)(adv|dis)(?:\s+|$)")
+
 
 def string_search_adv(dice_str: str):
     """
@@ -19,8 +20,9 @@ def string_search_adv(dice_str: str):
     adv = d20.AdvType.NONE
     if (match := ADV_WORD_RE.search(dice_str)) is not None:
         adv = d20.AdvType.ADV if match.group(1) == "adv" else d20.AdvType.DIS
-        return dice_str[: match.start(1)] + dice_str[match.end() :], adv
+        return dice_str[: match.start(1)] + dice_str[match.end():], adv
     return dice_str, adv
+
 
 class Dice(commands.Cog):
     """Dice and math related commands."""
@@ -83,7 +85,6 @@ class Dice(commands.Cog):
         await try_delete(ctx.message)
         await send(ctx, out, allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
 
-
     @commands.command(name="multiroll", aliases=["rr"])
     async def rr(self, ctx, iterations: int, *, dice):
         """Rolls dice in xdy format a given number of times.
@@ -104,7 +105,7 @@ class Dice(commands.Cog):
         as input.  Returning the highest value.  If two 6s are rolled,
         returns critical.  If zero is entered for number of dice, rolls
         two and returns the lowest."""
-        if numdice>0:
+        if numdice > 0:
             rollexpr = f"{numdice}d6kh1"
         elif numdice == 0:
             rollexpr = "2d6ph1"

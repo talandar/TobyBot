@@ -1,12 +1,11 @@
 import os
-from click import pass_context
 
 import discord
 from xcard_cog import XCardHandler
 from music_cog import Music
 from dice_cog import Dice
 from dotenv import load_dotenv
-from utils import *
+from utils import send, try_delete, get_version
 
 
 class TobyTrack(discord.ext.commands.Bot):
@@ -43,14 +42,17 @@ class TobyTrack(discord.ext.commands.Bot):
             async for message in ctx.channel.history(limit=200):
                 if message.author == ctx.bot.user:
                     await try_delete(message)
+
         @self.command(name="version", pass_context=True, help="Get Toby's build version.")
         async def version(ctx):
             await send(ctx, f"Version: {get_version()}")
+
         @self.event
         async def on_command_error(ctx, error):
             if isinstance(error, discord.ext.commands.CommandNotFound):
                 await send(ctx, "I don't know that command, sorry :(")
             raise error
+
 
 def main():
     """run the toby tracker.  This Method blocks"""
@@ -62,11 +64,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-"""
-dedupe songs by url in lists
-case insensitive commands
-respond to unknown commands
-report progress on long tasks
-split up long messages to avoid character limit 
-"""
