@@ -1,5 +1,5 @@
-from discord.ext import commands
-import discord
+from nextcord.ext import commands
+import nextcord
 from utils import BladesStringifier, VerboseMDStringifier, send, try_delete
 
 

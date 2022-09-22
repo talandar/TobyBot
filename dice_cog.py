@@ -1,8 +1,8 @@
 
 import re
 import d20
-import discord
-from discord.ext import commands
+import nextcord
+from nextcord.ext import commands
 from utils import BladesStringifier, VerboseMDStringifier, PersistentRollContext, send, try_delete
 
 
@@ -83,7 +83,7 @@ class Dice(commands.Cog):
             out = f"{ctx.author.mention}  :game_die:\n{str(res)[:100]}...\n**Total**: {res.total}"
 
         await try_delete(ctx.message)
-        await send(ctx, out, allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
+        await send(ctx, out, allowed_mentions=nextcord.AllowedMentions(users=[ctx.author]))
 
     @commands.command(name="multiroll", aliases=["rr"])
     async def rr(self, ctx, iterations: int, *, dice):
@@ -117,7 +117,7 @@ class Dice(commands.Cog):
         if len(out) > 1999:
             out = f"{ctx.author.mention}  :game_die:\n{str(res)[:100]}...\n**Total**: {res.total}"
         await try_delete(ctx.message)
-        await send(ctx, out, allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
+        await send(ctx, out, allowed_mentions=nextcord.AllowedMentions(users=[ctx.author]))
 
     @staticmethod
     async def _roll_many(ctx, iterations, roll_str, dc=None, adv=None):
@@ -155,4 +155,4 @@ class Dice(commands.Cog):
             out = f"{header}\n{one_result}\n[{len(results) - 1} results omitted for output size.]\n{footer}"
 
         await try_delete(ctx.message)
-        await send(ctx, f"{ctx.author.mention}\n{out}", allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
+        await send(ctx, f"{ctx.author.mention}\n{out}", allowed_mentions=nextcord.AllowedMentions(users=[ctx.author]))

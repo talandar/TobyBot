@@ -1,6 +1,6 @@
 import asyncio
-import discord
-from discord.ext import commands
+import nextcord
+from nextcord.ext import commands
 from ytwrapper import YTDLSource
 from utils import send
 
@@ -207,7 +207,7 @@ class Music(commands.Cog):
     async def play_downloaded(self, ctx, *, query):
         """Plays a file from the local filesystem"""
 
-        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(query))
+        source = nextcord.PCMVolumeTransformer(nextcord.FFmpegPCMAudio(query))
         ctx.voice_client.play(source, after=lambda e: print(f'Player error: {e}') if e else None)
 
         await send(ctx, f'Now playing: {query}')

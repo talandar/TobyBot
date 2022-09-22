@@ -1,6 +1,6 @@
 import os
 
-import discord
+import nextcord
 from xcard_cog import XCardHandler
 from music_cog import Music
 from dice_cog import Dice
@@ -8,13 +8,15 @@ from dotenv import load_dotenv
 from utils import send, try_delete, get_version
 
 
-class TobyTrack(discord.ext.commands.Bot):
+class TobyTrack(nextcord.ext.commands.Bot):
 
     prefix_map = {}
     default_prefix = '+'
 
     def __init__(self):
-        super().__init__(command_prefix=self.get_server_prefix, case_insensitive=True)
+        intents = nextcord.Intents.default()
+        intents.message_content = True
+        super().__init__(command_prefix=self.get_server_prefix, intents=intents, case_insensitive=True)
         self.add_cog(Music(self))
         self.add_cog(XCardHandler(self))
         self.add_cog(Dice(self))
@@ -49,7 +51,7 @@ class TobyTrack(discord.ext.commands.Bot):
 
         @self.event
         async def on_command_error(ctx, error):
-            if isinstance(error, discord.ext.commands.CommandNotFound):
+            if isinstance(error, nextcord.ext.commands.CommandNotFound):
                 await send(ctx, "I don't know that command, sorry :(")
             raise error
 

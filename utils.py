@@ -1,4 +1,4 @@
-import discord
+import nextcord
 import d20
 
 async def try_delete(message):
