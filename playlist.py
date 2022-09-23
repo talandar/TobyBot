@@ -1,17 +1,12 @@
 import random
 import os
 import json
-from re import M
 
-import ytwrapper
-
-"""Represents a server playlist."""
 
 class ServerPlaylist(object):
 
     DATA_FILE_LOCATION = "./playlists/"
     CURRENT_DATA_VERSION = 0
-    
 
     def __init__(self, guild_id):
         self._currentPlaylist = None
@@ -83,7 +78,6 @@ class ServerPlaylist(object):
     def current_stream(self):
         return self._currentStream
 
-
     def stream(self, song_url):
         self._currentStream = song_url
         self._currentPlaylist = None
@@ -103,10 +97,10 @@ class ServerPlaylist(object):
             return None
         if self._currentPlaylist in self._playlists:
             songs = self._playlists[self._currentPlaylist]['songs']
-            if len(songs)==0:
+            if len(songs) == 0:
                 self._currentSong = None
                 return None
-            elif len(songs)==1:
+            elif len(songs) == 1:
                 self._currentSong = songs[0]
                 return songs[0]
             else:
@@ -152,9 +146,6 @@ class ServerPlaylist(object):
             print("Upgrade to version 1 - new feature")
         """
 
-
-            
-
     def _save_data(self):
         self._playlists['version'] = self.CURRENT_DATA_VERSION
         exported_data = json.dumps(self._playlists)
@@ -167,17 +158,16 @@ class ServerPlaylist(object):
         with open(tmpfile, "w") as f:
             f.write(exported_data)
         if os.path.exists(outputfile):
-            os.rename(outputfile,bakfile)
-        os.rename(tmpfile,outputfile)
+            os.rename(outputfile, bakfile)
+        os.rename(tmpfile, outputfile)
         os.remove(bakfile)
 
     def _path(self):
         return os.path.join(self.DATA_FILE_LOCATION, f"{self.guild_id}.json")
 
 
-
 def test_upgrades():
-    spl = ServerPlaylist("test_v0_playlist")
+    ServerPlaylist("test_v0_playlist")
 
 
 if __name__ == "__main__":

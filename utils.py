@@ -1,22 +1,26 @@
 import nextcord
 import d20
 
+
 async def try_delete(message):
     try:
         await message.delete()
-    except discord.HTTPException:
+    except nextcord.HTTPException:
         pass
+
 
 async def send(ctx, text='', **kwargs):
     chunks = chunk_text(text)
     for chunk in chunks:
         return await ctx.send(chunk, **kwargs)
 
+
 def get_version():
     with open('./version.txt') as f:
         text = f.read()
         print(f"build version {text}")
         return text
+
 
 def chunk_text(text, max_chunk_size=1024, chunk_on=("\n\n", "\n", ". ", ", ", " "), chunker_i=0):
     """
@@ -50,18 +54,20 @@ def chunk_text(text, max_chunk_size=1024, chunk_on=("\n\n", "\n", ". ", ", ", " 
     chunks[-1] = chunks[-1][: -len(split_char)]
     return chunks
 
+
 class VerboseMDStringifier(d20.MarkdownStringifier):
     def _str_expression(self, node):
         return f"**{node.comment or 'Result'}**: {self._stringify(node.roll)}\n**Total**: {int(node.total)}"
 
+
 class BladesStringifier(d20.MarkdownStringifier):
     def _str_expression(self, node):
-        #determine if this is zero-dice roll
+        # determine if this is zero-dice roll
         operation = node.children[0].operations[0]
-        if operation.op=="k":
-            normal_roll=True
+        if operation.op == "k":
+            normal_roll = True
         else:
-            normal_roll=False
+            normal_roll = False
         if normal_roll:
             die_value = 0
         else:
@@ -73,7 +79,7 @@ class BladesStringifier(d20.MarkdownStringifier):
                     if die_value == 6 and child.values[0].total == 6:
                         critical = True
                     die_value = child.values[0].total
-            else: #low roll
+            else:  # low roll
                 if child.values[0].total <= die_value:
                     die_value = child.values[0].total
         if critical:
@@ -84,7 +90,7 @@ class BladesStringifier(d20.MarkdownStringifier):
             resulttype = "Partial Success"
         else:
             resulttype = "Bad Outcome"
-        #TODO: remove dice pattern from stringify below
+        # TODO: remove dice pattern from stringify below
         return f"**Dice**: {self._stringify(node.roll)}\n**Result**: {resulttype}"
 
     def _str_dice(self, node):

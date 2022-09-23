@@ -57,7 +57,6 @@ class YTDLSource(nextcord.PCMVolumeTransformer):
             data = data['entries']
         return data
 
-
     @classmethod
     async def from_url(cls, url, *, loop=None, stream=False):
         loop = loop or asyncio.get_event_loop()
