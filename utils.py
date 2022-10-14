@@ -2,17 +2,26 @@ import nextcord
 import d20
 
 
-async def try_delete(message):
-    try:
-        await message.delete()
-    except nextcord.HTTPException:
-        pass
+def get_register_guilds():
+    return [977378243562860554]
+    # return None
 
 
 async def send(ctx, text='', **kwargs):
     chunks = chunk_text(text)
     for chunk in chunks:
         return await ctx.send(chunk, **kwargs)
+
+
+async def safe_send(interaction, text='', **kwargs):
+    chunks = chunk_text(text)
+    followup = interaction.response.is_done()
+    for chunk in chunks:
+        if not followup:
+            await interaction.response.send_message(chunk, **kwargs)
+            followup = True
+        else:
+            await interaction.followup.send(chunk, **kwargs)
 
 
 def get_version():

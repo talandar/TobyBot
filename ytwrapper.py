@@ -40,7 +40,10 @@ class YTDLSource(nextcord.PCMVolumeTransformer):
     @classmethod
     async def meta_from_url(cls, url, *, loop=None):
         loop = loop or asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+        try:
+            data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+        except (youtube_dl.utils.DownloadError, youtube_dl.utils.ExtractorError):
+            raise YTDLException(url)
 
         if 'entries' in data:
             # take first item from a playlist
@@ -50,7 +53,10 @@ class YTDLSource(nextcord.PCMVolumeTransformer):
     @classmethod
     async def playlist_meta_from_url(cls, url, *, loop=None):
         loop = loop or asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+        try:
+            data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+        except (youtube_dl.utils.DownloadError, youtube_dl.utils.ExtractorError):
+            raise YTDLException(url)
 
         if 'entries' in data:
             # un-nest entries
@@ -72,7 +78,10 @@ class YTDLSource(nextcord.PCMVolumeTransformer):
     @classmethod
     async def playlist_from_url(cls, url, *, loop=None):
         loop = loop or asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+        try:
+            data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+        except (youtube_dl.utils.DownloadError, youtube_dl.utils.ExtractorError):
+            raise YTDLException(url)
 
         retval = []
         if 'entries' in data:
@@ -85,3 +94,7 @@ class YTDLSource(nextcord.PCMVolumeTransformer):
             filename = data['webpage_url']
             retval.append(filename)
         return retval
+
+
+class YTDLException(Exception):
+    pass

@@ -48,6 +48,7 @@ class ServerPlaylist(object):
         return []
 
     def add_to_playlist(self, playlist_name, song_url):
+        song_url = self._rewrite_url(song_url)
         lower_name = playlist_name.lower()
         if lower_name in self._playlists:
             songs = self._playlists[lower_name]['songs']
@@ -60,6 +61,7 @@ class ServerPlaylist(object):
             return False
 
     def remove_from_playlist(self, playlist_name, song_url):
+        song_url = self._rewrite_url(song_url)
         lower_name = playlist_name.lower()
         if lower_name in self._playlists:
             songs = self._playlists[lower_name]['songs']
@@ -109,12 +111,18 @@ class ServerPlaylist(object):
                     print(f"tried to repick {nextsong}, trying again")
                     nextsong = random.choice(songs)
                 self._currentSong = nextsong
+                print(f"picked {nextsong}")
                 return nextsong
         return None
 
     def stop(self):
         self._currentPlaylist = None
         self._currentStream = None
+
+    def _rewrite_url(self, song_url: str):
+        song_url = song_url.replace("https://youtube.com/shorts/", "https://www.youtube.com/watch?v=")
+        song_url = song_url.replace("feature=share", "")
+        return song_url
 
     def _load_data(self):
         print(f"load data from {self._path()}")

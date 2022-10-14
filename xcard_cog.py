@@ -1,6 +1,6 @@
 from nextcord.ext import commands
 import nextcord
-from utils import send, try_delete
+from utils import safe_send, get_register_guilds
 
 
 class XCardHandler(commands.Cog):
@@ -8,21 +8,17 @@ class XCardHandler(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['x', 'x-card'])
-    async def xcard(self, ctx):
+    @nextcord.slash_command(guild_ids=get_register_guilds())
+    async def xcard(self, interaction: nextcord.Interaction):
         """Call for an X card, to stop the current action in case the current action is uncomfortable."""
-        await send(ctx, "X-Card - Let's change things up...")
-        await send(ctx, file=nextcord.File('./images/xcard.png'))
+        await safe_send(interaction, "X-Card - Let's change things up...", file=nextcord.File('./images/xcard.png'))
 
-    @commands.command(aliases=['o', 'o-card', 'awesome'])
-    async def ocard(self, ctx):
+    @nextcord.slash_command(guild_ids=get_register_guilds())
+    async def ocard(self, interaction: nextcord.Interaction):
         """Call for the O card - indicating that what is going on is super cool."""
-        await send(ctx, "This scene is great, keep going! :sunglasses:")
+        await safe_send(interaction, "This scene is great, keep going! :sunglasses:")
 
-    @commands.command(aliases=['fade', 'fadetoblack'])
-    async def fadecard(self, ctx):
+    @nextcord.slash_command(guild_ids=get_register_guilds())
+    async def fadecard(self, interaction: nextcord.Interaction):
         """Call for a fade to black.  This scene can happen, but lets do that offscreen."""
-        await send(ctx, "Fade-Card Called.  Lets fade this scene to black...")
-
-    async def cog_after_invoke(self, ctx):
-        await try_delete(ctx.message)
+        await safe_send(interaction, "Fade-Card Called.  Lets fade this scene to black...")
