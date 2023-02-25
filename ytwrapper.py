@@ -1,5 +1,5 @@
 import asyncio
-import discord
+import nextcord
 import youtube_dl
 
 
@@ -28,7 +28,7 @@ ffmpeg_options = {
 ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
 
 
-class YTDLSource(discord.PCMVolumeTransformer):
+class YTDLSource(nextcord.PCMVolumeTransformer):
     def __init__(self, source, *, data, volume=0.5):
         super().__init__(source, volume)
 
@@ -40,7 +40,10 @@ class YTDLSource(discord.PCMVolumeTransformer):
     @classmethod
     async def meta_from_url(cls, url, *, loop=None):
         loop = loop or asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+        try:
+            data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+        except (youtube_dl.utils.DownloadError, youtube_dl.utils.ExtractorError):
+            raise YTDLException(url)
 
         if 'entries' in data:
             # take first item from a playlist
@@ -50,13 +53,15 @@ class YTDLSource(discord.PCMVolumeTransformer):
     @classmethod
     async def playlist_meta_from_url(cls, url, *, loop=None):
         loop = loop or asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+        try:
+            data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+        except (youtube_dl.utils.DownloadError, youtube_dl.utils.ExtractorError):
+            raise YTDLException(url)
 
         if 'entries' in data:
             # un-nest entries
             data = data['entries']
         return data
-
 
     @classmethod
     async def from_url(cls, url, *, loop=None, stream=False):
@@ -68,12 +73,15 @@ class YTDLSource(discord.PCMVolumeTransformer):
             data = data['entries'][0]
 
         filename = data['url'] if stream else ytdl.prepare_filename(data)
-        return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
+        return cls(nextcord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
 
     @classmethod
     async def playlist_from_url(cls, url, *, loop=None):
         loop = loop or asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+        try:
+            data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
+        except (youtube_dl.utils.DownloadError, youtube_dl.utils.ExtractorError):
+            raise YTDLException(url)
 
         retval = []
         if 'entries' in data:
@@ -86,3 +94,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
             filename = data['webpage_url']
             retval.append(filename)
         return retval
+
+
+class YTDLException(Exception):
+    pass

@@ -1,9 +1,9 @@
 
 import re
 import d20
-import discord
-from discord.ext import commands
-from utils import BladesStringifier, VerboseMDStringifier, PersistentRollContext, send, try_delete
+import nextcord
+from nextcord.ext import commands
+from utils import BladesStringifier, VerboseMDStringifier, PersistentRollContext, safe_send, get_register_guilds
 
 
 ADV_WORD_RE = re.compile(r"(?:^|\s+)(adv|dis)(?:\s+|$)")
@@ -31,8 +31,8 @@ class Dice(commands.Cog):
         self.bot = bot
 
 # This is straight up stolen from avrae!
-    @commands.command(name="roll", aliases=["r"])
-    async def roll_cmd(self, ctx, *, dice: str = "1d20"):
+    @nextcord.slash_command(guild_ids=get_register_guilds())
+    async def roll(self, interaction: nextcord.Interaction, *, dice: str = "1d20"):
         """Roll is used to roll any combination of dice in the `XdY` format. (`1d6`, `2d8`, etc)
         Multiple rolls can be added together as an equation. Standard Math operators and Parentheses can be used: `() + - / *`
         Roll also accepts `adv` and `dis` for Advantage and Disadvantage. Rolls can also be tagged with `[text]` for informational purposes. Any text after the roll will assign the name of the roll.
@@ -78,29 +78,28 @@ class Dice(commands.Cog):
         dice, adv = string_search_adv(dice)
 
         res = d20.roll(dice, advantage=adv, allow_comments=True, stringifier=VerboseMDStringifier())
-        out = f"{ctx.author.mention}  :game_die:\n{str(res)}"
+        out = f"{interaction.user.mention}  :game_die:\n{str(res)}"
         if len(out) > 1999:
-            out = f"{ctx.author.mention}  :game_die:\n{str(res)[:100]}...\n**Total**: {res.total}"
+            out = f"{interaction.user.mention}  :game_die:\n{str(res)[:100]}...\n**Total**: {res.total}"
 
-        await try_delete(ctx.message)
-        await send(ctx, out, allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
+        await safe_send(interaction, out, allowed_mentions=nextcord.AllowedMentions(users=[interaction.user]))
 
-    @commands.command(name="multiroll", aliases=["rr"])
-    async def rr(self, ctx, iterations: int, *, dice):
+    @nextcord.slash_command(guild_ids=get_register_guilds())
+    async def multiroll(self, interaction: nextcord.Interaction, iterations: int, *, dice):
         """Rolls dice in xdy format a given number of times.
-        Usage: !rr <iterations> <dice>"""
+        Usage: multiroll <iterations> <dice>"""
         dice, adv = string_search_adv(dice)
-        await self._roll_many(ctx, iterations, dice, adv=adv)
+        await self._roll_many(interaction, iterations, dice, adv=adv)
 
-    @commands.command(name="iterroll", aliases=["rrr"])
-    async def rrr(self, ctx, iterations: int, dice, dc: int = None, *, args=""):
+    @nextcord.slash_command(guild_ids=get_register_guilds())
+    async def iterroll(self, interaction: nextcord.Interaction, iterations: int, dice, dc: int = None, *, args=""):
         """Rolls dice in xdy format, given a set dc.
-        Usage: !rrr <iterations> <xdy> <DC> [args]"""
+        Usage: iterroll <iterations> <xdy> <DC> [args]"""
         _, adv = string_search_adv(args)
-        await self._roll_many(ctx, iterations, dice, dc, adv)
+        await self._roll_many(interaction, iterations, dice, dc, adv)
 
-    @commands.command(aliases=['blades'])
-    async def bladesroll(self, ctx, numdice: int):
+    @nextcord.slash_command(guild_ids=get_register_guilds())
+    async def bladesroll(self, interaction: nextcord.Interaction, numdice: int):
         """Rolls dice for blades in the dark.  Rolls a number of dice,
         as input.  Returning the highest value.  If two 6s are rolled,
         returns critical.  If zero is entered for number of dice, rolls
@@ -110,19 +109,18 @@ class Dice(commands.Cog):
         elif numdice == 0:
             rollexpr = "2d6ph1"
         else:
-            await send(ctx, "You can't roll a negative number of dice!")
+            await safe_send(interaction, "You can't roll a negative number of dice!")
             return
         res = d20.roll(rollexpr, stringifier=BladesStringifier())
-        out = f"{ctx.author.mention}  :crossed_swords::game_die:\n{str(res)}"
+        out = f"{interaction.user.mention}  :crossed_swords::game_die:\n{str(res)}"
         if len(out) > 1999:
-            out = f"{ctx.author.mention}  :game_die:\n{str(res)[:100]}...\n**Total**: {res.total}"
-        await try_delete(ctx.message)
-        await send(ctx, out, allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
+            out = f"{interaction.user.mention}  :game_die:\n{str(res)[:100]}...\n**Total**: {res.total}"
+        await safe_send(interaction, out, allowed_mentions=nextcord.AllowedMentions(users=[interaction.user]))
 
     @staticmethod
-    async def _roll_many(ctx, iterations, roll_str, dc=None, adv=None):
+    async def _roll_many(interaction: nextcord.Interaction, iterations, roll_str, dc=None, adv=None):
         if iterations < 1 or iterations > 100:
-            return await send(ctx, "Too many or too few iterations.")
+            return await safe_send(interaction, "Too many or too few iterations.")
         if adv is None:
             adv = d20.AdvType.NONE
         results = []
@@ -154,5 +152,4 @@ class Dice(commands.Cog):
             one_result = str(results[0])
             out = f"{header}\n{one_result}\n[{len(results) - 1} results omitted for output size.]\n{footer}"
 
-        await try_delete(ctx.message)
-        await send(ctx, f"{ctx.author.mention}\n{out}", allowed_mentions=discord.AllowedMentions(users=[ctx.author]))
+        await safe_send(interaction, f"{interaction.user.mention}\n{out}", allowed_mentions=nextcord.AllowedMentions(users=[interaction.user]))
