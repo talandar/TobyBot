@@ -1,10 +1,11 @@
 import asyncio
 import nextcord
-import youtube_dl
+#import youtube_dl
+import yt_dlp
 
 
 # Suppress noise about console usage from errors
-youtube_dl.utils.bug_reports_message = lambda: ''
+yt_dlp.utils.bug_reports_message = lambda: ''
 
 
 ytdl_format_options = {
@@ -25,7 +26,7 @@ ffmpeg_options = {
     'options': '-vn',
 }
 
-ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
+ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
 
 
 class YTDLSource(nextcord.PCMVolumeTransformer):
@@ -42,7 +43,7 @@ class YTDLSource(nextcord.PCMVolumeTransformer):
         loop = loop or asyncio.get_event_loop()
         try:
             data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
-        except (youtube_dl.utils.DownloadError, youtube_dl.utils.ExtractorError):
+        except (yt_dlp.utils.DownloadError, yt_dlp.utils.ExtractorError):
             raise YTDLException(url)
 
         if 'entries' in data:
@@ -55,7 +56,7 @@ class YTDLSource(nextcord.PCMVolumeTransformer):
         loop = loop or asyncio.get_event_loop()
         try:
             data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
-        except (youtube_dl.utils.DownloadError, youtube_dl.utils.ExtractorError):
+        except (yt_dlp.utils.DownloadError, yt_dlp.utils.ExtractorError):
             raise YTDLException(url)
 
         if 'entries' in data:
@@ -80,7 +81,7 @@ class YTDLSource(nextcord.PCMVolumeTransformer):
         loop = loop or asyncio.get_event_loop()
         try:
             data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
-        except (youtube_dl.utils.DownloadError, youtube_dl.utils.ExtractorError):
+        except (yt_dlp.utils.DownloadError, yt_dlp.utils.ExtractorError):
             raise YTDLException(url)
 
         retval = []

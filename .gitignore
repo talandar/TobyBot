@@ -130,3 +130,9 @@ dmypy.json
 
 # VSCode
 .vscode
+
+# Project Specific
+version.txt
+bin/
+lib64
+pyvenv.cfg

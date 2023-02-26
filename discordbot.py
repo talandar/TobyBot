@@ -6,6 +6,7 @@ from music_cog import Music
 from dice_cog import Dice
 from dotenv import load_dotenv
 from utils import send, get_version, safe_send, get_register_guilds
+import time
 
 
 class TobyTrack(nextcord.ext.commands.Bot):
@@ -24,7 +25,6 @@ class TobyTrack(nextcord.ext.commands.Bot):
 
     async def on_ready(self):
         print(f'Logged on as {self.user}!')
-        print(f'running code built on {get_version()}')
 
     def add_general_commands(self):
         @self.slash_command(guild_ids=get_register_guilds())
@@ -52,10 +52,17 @@ class TobyTrack(nextcord.ext.commands.Bot):
 
 def main():
     """run the toby tracker.  This Method blocks"""
-    load_dotenv()
-    client = TobyTrack()
-    TOKEN = os.getenv('DISCORD_TOKEN')
-    client.run(TOKEN)
+    print(f'running code built on {get_version()}')
+    try:
+        load_dotenv()
+        client = TobyTrack()
+        TOKEN = os.getenv('DISCORD_TOKEN')
+        client.run(TOKEN)
+    except Exception as e:
+        print("There was an exception starting Toby.")
+        print(e)
+        while True:
+            time.sleep(10)
 
 
 if __name__ == "__main__":
