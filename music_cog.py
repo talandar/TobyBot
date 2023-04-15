@@ -20,8 +20,19 @@ class Music(commands.Cog):
         if interaction.user.voice:
             channel = interaction.user.voice.channel
         if channel:
-            await channel.connect()
-            await safe_send(interaction, "Joined! :musical_note::notes:")
+            try:
+                await safe_send(interaction, f"Trying to join {channel.name}...")
+                await channel.connect()
+                await safe_send(interaction, "Joined! :musical_note::notes:")
+            except Exception as e:
+                print(f"error connecting to channel {channel.name}.")
+                print(e)
+                await safe_send(interaction, "Had a problem joining voice.  Please check out the logs :sob:")
+                try:
+                    await interaction.guild.voice_client.disconnect()
+                except:
+                    #try to keep things tidy?
+                    pass
         else:
             await safe_send(interaction, "You're not in a voice channel!  I don't know what channel to join! :confounded:")
 

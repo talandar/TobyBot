@@ -7,6 +7,7 @@ from dice_cog import Dice
 from dotenv import load_dotenv
 from utils import send, get_version, safe_send, get_register_guilds
 import time
+import traceback
 
 
 class TobyTrack(nextcord.ext.commands.Bot):
@@ -61,6 +62,7 @@ def main():
     except Exception as e:
         print("There was an exception starting Toby.")
         print(e)
+        traceback.print_exc()
         while True:
             time.sleep(10)
 
